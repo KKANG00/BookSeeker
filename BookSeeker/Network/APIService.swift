@@ -15,7 +15,7 @@ enum NetworkError: Error {
     case serverError(statusCode: Int)
 }
 
-actor APIService {
+final class APIService: Sendable {
     static let shared: APIService = .init()
 
     private let baseURL = "https://api.itbook.store/1.0"
