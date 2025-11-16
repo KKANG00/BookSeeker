@@ -76,9 +76,14 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
         let book = books[indexPath.row]
-        // open modal
+
+        let detailViewController = BookDetailViewController(isbn13: book.isbn13)
+
+        detailViewController.modalPresentationStyle = .pageSheet
+
+        present(detailViewController, animated: true)
     }
 
     func tableView(

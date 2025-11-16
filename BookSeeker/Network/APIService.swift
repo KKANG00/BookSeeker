@@ -51,11 +51,7 @@ final class APIService: Sendable {
         task.resume()
     }
 
-    func fetchSearchResult(
-        query: String,
-        page: Int = 1,
-        completion: @escaping (Result<SearchResponse, Error>) -> Void
-    ) {
+    private func encodingQuery(_ query: String) -> String {
         // enconding
         let processedQuery = query
             .trimmingCharacters(in: .whitespacesAndNewlines) // 앞뒤 공백 제거
@@ -63,6 +59,15 @@ final class APIService: Sendable {
         let encodedQuery = processedQuery
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
 
+        return encodedQuery
+    }
+
+    func fetchSearchResult(
+        query: String,
+        page: Int = 1,
+        completion: @escaping (Result<SearchResponse, Error>) -> Void
+    ) {
+        let encodedQuery = encodingQuery(query)
         guard let url = URL(string: "\(baseURL)/search/\(encodedQuery)/\(page)") else {
             completion(.failure(NetworkError.invalidURL))
             return
