@@ -57,7 +57,10 @@ final class APIService: Sendable {
         completion: @escaping (Result<SearchResponse, Error>) -> Void
     ) {
         // enconding
-        let encodedQuery = query
+        let processedQuery = query
+            .trimmingCharacters(in: .whitespacesAndNewlines) // 앞뒤 공백 제거
+            .replacingOccurrences(of: " ", with: "-") // 중간 공백 → 하이픈
+        let encodedQuery = processedQuery
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
 
         guard let url = URL(string: "\(baseURL)/search/\(encodedQuery)/\(page)") else {
