@@ -53,13 +53,14 @@ final class APIService: Sendable {
 
     func fetchSearchResult(
         query: String,
+        page: Int = 1,
         completion: @escaping (Result<SearchResponse, Error>) -> Void
     ) {
         // enconding
         let encodedQuery = query
-            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? query
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
 
-        guard let url = URL(string: "\(baseURL)/search/\(encodedQuery)") else {
+        guard let url = URL(string: "\(baseURL)/search/\(encodedQuery)/\(page)") else {
             completion(.failure(NetworkError.invalidURL))
             return
         }

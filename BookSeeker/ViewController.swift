@@ -8,11 +8,17 @@
 import UIKit
 
 class ViewController: UIViewController {
+    private let apiService = APIService.shared
+
     private let tableView = UITableView()
     private let searchController = UISearchController(searchResultsController: nil)
-
     private var books: [BookResponse] = []
-    private let apiService = APIService.shared
+
+    private var currentPage: Int = 1
+    private var totalResult: Int = 0
+    private var currentSearchQuery: String = ""
+
+    private var searchWorkItem: DispatchWorkItem?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,6 +79,25 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         let book = books[indexPath.row]
         // open modal
     }
+
+    func tableView(
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        let currentRow = indexPath.row
+        let thresholdIndex = books.count - 5
+
+        guard currentRow >= thresholdIndex,
+              !isLoading,
+              !currentSearchQuery.isEmpty,
+              books.count < totalResult else {
+            return
+        }
+
+        let nextPage = currentPage + 1
+        searchMore(query: currentSearchQuery, page: nextPage)
+    }
 }
 
 extension ViewController: UISearchResultsUpdating {
@@ -80,19 +105,49 @@ extension ViewController: UISearchResultsUpdating {
         guard let query = searchController.searchBar.text, !query.isEmpty else {
             books = []
             tableView.reloadData()
+            currentSearchQuery = "" // ?
+            currentPage = 1
+            searchWorkItem?.cancel()
             return
         }
 
-        apiService.fetchSearchResult(query: query) { [weak self] result in
-            switch result {
-            case .success(let response):
-                guard let self else { return }
-                DispatchQueue.main.async {
-                    self.books = response.books
+        searchWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            if query != currentSearchQuery {
+                currentSearchQuery = query
+                currentPage = 1
+                books = []
+                searchMore(query: query, page: 1)
+            }
+        }
+
+        searchWorkItem = workItem
+        // debouncing
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: workItem)
+    }
+
+    private func searchMore(query: String, page: Int) {
+        guard !isLoading else { return }
+        isLoading = true
+
+        apiService.fetchSearchResult(query: query, page: page) { [weak self] result in
+            guard let self else { return }
+            DispatchQueue.main.async {
+                self.isLoading = false
+                switch result {
+                case .success(let response):
+                    self.totalResult = Int(response.total) ?? 0
+                    if page == 1 {
+                        self.books = response.books
+                    } else {
+                        self.books.append(contentsOf: response.books)
+                    }
+                    self.currentPage = page
                     self.tableView.reloadData()
+                case .failure(let error):
+                    break
                 }
-            case .failure(let error):
-                print("fetchSearchResult Error: \(error)")
             }
         }
     }

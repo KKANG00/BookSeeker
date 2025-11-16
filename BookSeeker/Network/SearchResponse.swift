@@ -7,6 +7,6 @@
 
 struct SearchResponse: Decodable {
     let total: String
-    let page: String
+    let page: String?
     let books: [BookResponse]
 }
