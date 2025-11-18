@@ -1,5 +1,5 @@
 //
-//  BookDetailViewController.swift
+//  DetailInfoViewController.swift
 //  BookSeeker
 //
 //  Created by jiwoo.kang on 11/16/25.
@@ -24,6 +24,7 @@ class BookDetailViewController: UIViewController {
     private let contentView = UIView()
     private let detailStackView = UIStackView()
 
+    private let bookCoverImageView = UIImageView()
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let authorsLabel = UILabel()
@@ -39,16 +40,24 @@ class BookDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
 
-        setupScrollView()
-        setupStackView()
-        setupLoadingIndicator()
+        setScrollView()
+        setImageView()
+        setStackView()
+        setLoadingIndicator()
 
         title = "상세정보"
 
         fetchBookDetails()
     }
 
-    private func setupScrollView() {
+    private func setImageView() {
+        bookCoverImageView.translatesAutoresizingMaskIntoConstraints = false
+        bookCoverImageView.contentMode = .scaleAspectFit
+        bookCoverImageView.clipsToBounds = true
+//        bookCoverImageView.backgroundColor = .gray
+    }
+
+    private func setScrollView() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(detailStackView)
@@ -58,16 +67,27 @@ class BookDetailViewController: UIViewController {
 
         scrollView
             .leading().trailing().top().bottom()
+
         contentView
             .leading().trailing().top().bottom()
         contentView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        contentView.addSubview(bookCoverImageView)
+
+        bookCoverImageView.top().leading().trailing()
+        bookCoverImageView.heightAnchor.constraint(equalToConstant: 300).isActive = true
+
         detailStackView
-            .leading(constant: 20).trailing(constant: -20).top(constant: 60).bottom(constant: 60)
+            .leading(constant: 20).trailing(constant: -20)
+            .top(
+                equalTo: bookCoverImageView.bottomAnchor,
+                constant: 20
+            )
+            .bottom(constant: 60)
     }
 
-    private func setupStackView() {
+    private func setStackView() {
         detailStackView.axis = .vertical
-        detailStackView.spacing = 12
+        detailStackView.spacing = 10
         detailStackView.alignment = .fill
         detailStackView.distribution = .fill
 
@@ -83,7 +103,10 @@ class BookDetailViewController: UIViewController {
             ratingLabel,
             descriptionLabel,
         ]
-        .forEach { detailStackView.addArrangedSubview($0) }
+        .forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            detailStackView.addArrangedSubview($0)
+        }
     }
 
     private func setLabels() {
@@ -111,7 +134,7 @@ class BookDetailViewController: UIViewController {
         }
     }
 
-    private func setupLoadingIndicator() {
+    private func setLoadingIndicator() {
         view.addSubview(loadingIndicator)
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
 
@@ -152,6 +175,26 @@ extension BookDetailViewController {
         priceLabel.text = "가격: \(book.price)"
         ratingLabel.text = "별점: \(book.rating ?? noInfo)"
         descriptionLabel.text = book.desc ?? noInfo
+
+        if let imageURL = URL(string: book.image) {
+            downloadImage(from: imageURL)
+        } else {
+            bookCoverImageView.image = UIImage(systemName: "book.fill")
+        }
+    }
+
+    private func downloadImage(from url: URL) {
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let data,
+                  error == nil,
+                  let image = UIImage(data: data) else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                self?.bookCoverImageView.image = image
+            }
+        }.resume()
     }
 
     private func failToLoad() {

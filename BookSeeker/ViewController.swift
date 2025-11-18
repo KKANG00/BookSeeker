@@ -7,10 +7,10 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class SearchMainViewController: UIViewController {
     private let apiService = APIService.shared
 
-    private let tableView = UITableView()
+    private let searchResultTableView = UITableView()
     private let searchController = UISearchController(searchResultsController: nil)
     private var books: [BookResponse] = []
 
@@ -20,6 +20,8 @@ class ViewController: UIViewController {
     private var currentSearchQuery: String = ""
 
     private var searchWorkItem: DispatchWorkItem?
+
+    private let bookTableViewCellIdentifier = "BookTableViewCell"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,33 +46,39 @@ class ViewController: UIViewController {
     }
 
     private func setTableView() {
-        view.addSubview(tableView)
-        tableView.delegate = self
-        tableView.dataSource = self
+        view.addSubview(searchResultTableView)
 
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView
+        searchResultTableView.delegate = self
+        searchResultTableView.dataSource = self
+
+        searchResultTableView.translatesAutoresizingMaskIntoConstraints = false
+        searchResultTableView
             .leading().trailing().top().bottom()
-        tableView.rowHeight = 100
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "BookItemCell")
+        searchResultTableView.rowHeight = 100
+        searchResultTableView.register(
+            BookTableViewCell.self,
+            forCellReuseIdentifier: bookTableViewCellIdentifier
+        )
     }
 }
 
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
+// MARK: UITableViewDelegate, UITableViewDataSource
+
+extension SearchMainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return books.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "BookItemCell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: bookTableViewCellIdentifier,
+            for: indexPath
+        ) as? BookTableViewCell else {
+            return UITableViewCell()
+        }
 
         let book = books[indexPath.row]
-
-        // tableViewCell
-        var content = cell.defaultContentConfiguration()
-        content.text = book.title
-        content.secondaryText = book.subtitle
-        cell.contentConfiguration = content
+        cell.configureBook(with: book)
 
         return cell
     }
@@ -106,11 +114,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension ViewController: UISearchResultsUpdating {
+// MARK: UISearchResultsUpdating
+
+extension SearchMainViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let query = searchController.searchBar.text, !query.isEmpty else {
             books = []
-            tableView.reloadData()
+            searchResultTableView.reloadData()
             currentSearchQuery = "" // ?
             currentPage = 1
             searchWorkItem?.cancel()
@@ -150,7 +160,7 @@ extension ViewController: UISearchResultsUpdating {
                         self.books.append(contentsOf: response.books)
                     }
                     self.currentPage = page
-                    self.tableView.reloadData()
+                    self.searchResultTableView.reloadData()
                 case .failure(let error):
                     break
                 }
