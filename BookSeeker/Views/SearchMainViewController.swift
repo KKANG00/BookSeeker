@@ -183,6 +183,7 @@ extension SearchMainViewController: UISearchResultsUpdating {
                 switch result {
                 case .success(let response):
                     self.emptyStateView.isHidden = true
+                    print("::: response \(response)")
                     self.totalResult = Int(response.total) ?? 0
                     if page == 1 {
                         self.books = response.books
