@@ -11,6 +11,8 @@ class SearchMainViewController: UIViewController {
     private let apiService = APIService.shared
 
     private let searchResultTableView = UITableView()
+    private var emptyStateView = UIView()
+    private var emptyStateLabel = UILabel()
     private let searchController = UISearchController(searchResultsController: nil)
     private var books: [BookResponse] = []
 
@@ -29,6 +31,7 @@ class SearchMainViewController: UIViewController {
         initiate()
         setSearchController()
         setTableView()
+        setEmptyStateView()
     }
 
     private func initiate() {
@@ -43,6 +46,32 @@ class SearchMainViewController: UIViewController {
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
+    }
+
+    private func setEmptyStateView() {
+        let emptyStateIconView: UIImageView = .init()
+        emptyStateIconView.image = UIImage(systemName: "exclamationmark.triangle.fill")
+
+        view.addSubview(emptyStateView)
+        emptyStateView.translatesAutoresizingMaskIntoConstraints = false
+        emptyStateIconView.translatesAutoresizingMaskIntoConstraints = false
+        emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        emptyStateView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        emptyStateView.addSubview(emptyStateIconView)
+        emptyStateIconView.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        emptyStateIconView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        emptyStateIconView.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor)
+            .isActive = true
+        emptyStateIconView.centerYAnchor.constraint(equalTo: emptyStateView.centerYAnchor)
+            .isActive = true
+        emptyStateView.addSubview(emptyStateLabel)
+        emptyStateLabel
+            .leading().trailing().top(equalTo: emptyStateIconView.bottomAnchor, constant: 20)
+        emptyStateLabel.textAlignment = .center
+
+        emptyStateView.isHidden = true
     }
 
     private func setTableView() {
@@ -153,6 +182,7 @@ extension SearchMainViewController: UISearchResultsUpdating {
                 self.isLoading = false
                 switch result {
                 case .success(let response):
+                    self.emptyStateView.isHidden = true
                     self.totalResult = Int(response.total) ?? 0
                     if page == 1 {
                         self.books = response.books
@@ -162,9 +192,23 @@ extension SearchMainViewController: UISearchResultsUpdating {
                     self.currentPage = page
                     self.searchResultTableView.reloadData()
                 case .failure(let error):
-                    break
+                    if page == 1 {
+                        let failCase = error as? NetworkError
+                        self.setEmptyState(message: failCase?.failMessage)
+                        self.emptyStateView.isHidden = false
+                    }
                 }
             }
         }
+    }
+}
+
+// MARK: EmptyState
+
+extension SearchMainViewController {
+    private func setEmptyState(message: String?) {
+        books = []
+        searchResultTableView.reloadData()
+        emptyStateLabel.text = message
     }
 }

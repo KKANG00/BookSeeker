@@ -13,6 +13,21 @@ enum NetworkError: Error {
     case failedToDecode
     case networkError(Error)
     case serverError(statusCode: Int)
+
+    var failMessage: String {
+        switch self {
+        case .invalidURL:
+            return "invalidURL"
+        case .noData:
+            return "noData"
+        case .failedToDecode:
+            return "failedToDecode"
+        case .networkError(let error):
+            return "networkError: \(error)"
+        case .serverError(let statusCode):
+            return "serverError(\(statusCode))"
+        }
+    }
 }
 
 final class APIService: Sendable {
