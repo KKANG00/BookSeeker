@@ -57,7 +57,8 @@ class SearchMainViewController: UIViewController {
         searchResultTableView.translatesAutoresizingMaskIntoConstraints = false
         searchResultTableView
             .leading().trailing().top().bottom()
-        searchResultTableView.rowHeight = tableViewRowHeight
+        searchResultTableView.rowHeight = UITableView.automaticDimension
+        searchResultTableView.estimatedRowHeight = tableViewRowHeight
         searchResultTableView.register(
             BookTableViewCell.self,
             forCellReuseIdentifier: bookTableViewCellIdentifier
