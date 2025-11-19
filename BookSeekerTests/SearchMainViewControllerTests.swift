@@ -13,7 +13,11 @@ class SearchMainViewControllerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut = SearchMainViewController()
+        sut = SearchMainViewController(
+            searchUseCase: SearchUseCaseImpl(
+                repository: SearchRepository()
+            )
+        )
         sut.loadViewIfNeeded()
     }
 

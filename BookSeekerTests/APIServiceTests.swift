@@ -35,7 +35,7 @@ class APIServiceTests: XCTestCase {
 
         // then
         do {
-            let search = try decoder.decode(SearchResponse.self, from: jsonData)
+            let search = try decoder.decode(SearchResultDTO.self, from: jsonData)
 
             XCTAssertEqual(search.books.first?.title, "Microsoft Money 2006 For Dummies")
             XCTAssertEqual(search.total, "86")
@@ -73,7 +73,7 @@ class APIServiceTests: XCTestCase {
 
         // then
         do {
-            let book = try decoder.decode(BookResponse.self, from: jsonData)
+            let book = try decoder.decode(BookDTO.self, from: jsonData)
 
             XCTAssertEqual(book.title, "Microsoft Money 2006 For Dummies")
             XCTAssertEqual(book.isbn13, "9780471758099")
