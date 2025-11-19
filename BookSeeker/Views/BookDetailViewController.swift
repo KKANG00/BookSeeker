@@ -89,7 +89,7 @@ class BookDetailViewController: UIViewController {
                 equalTo: bookCoverImageView.bottomAnchor,
                 constant: 20
             )
-            .bottom(constant: 60)
+            .bottom(constant: 20)
     }
 
     private func setStackView() {
@@ -149,6 +149,7 @@ class BookDetailViewController: UIViewController {
         }
 
         urlButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        urlButton.setTitleColor(.systemBlue, for: .normal)
         urlButton.titleLabel?.numberOfLines = 0
         urlButton.contentHorizontalAlignment = .left
         urlButton.addTarget(self, action: #selector(urlButtonAction), for: .touchUpInside)

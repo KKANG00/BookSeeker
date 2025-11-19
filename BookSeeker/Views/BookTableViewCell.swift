@@ -91,6 +91,7 @@ class BookTableViewCell: UITableViewCell {
         priceLabel.numberOfLines = 1
 
         urlButton.titleLabel?.font = .systemFont(ofSize: 14)
+        urlButton.setTitleColor(.systemBlue, for: .normal)
         urlButton.titleLabel?.numberOfLines = 2
         urlButton.contentHorizontalAlignment = .left
         urlButton.addTarget(self, action: #selector(urlButtonAction), for: .touchUpInside)
