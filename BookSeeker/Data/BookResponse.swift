@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct BookResponse: Decodable {
-    let title: String
+struct BookDTO: Decodable {
+    let title: String?
     let subtitle: String?
-    let isbn13: String
-    let price: String
-    let image: String
-    let url: String
+    let isbn13: String?
+    let price: String?
+    let image: String?
+    let url: String?
 
     // details
     let authors: String?
