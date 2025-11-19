@@ -14,6 +14,14 @@ BookSeeker는 IT Book Store API를 활용하여 기술 서적을 검색하고 �
 - 🖼️ **이미지 캐싱**: 메모리 캐싱을 통한 빠른 이미지 로딩
 - 🌐 **외부 링크**: IT Book Store 웹사이트로 이동
 
+## 📸 스크린샷
+
+<p align="center">
+  <img src="Images/SearchMain.png" width="250" />
+  <img src="Images/SearchResult.png" width="250" />
+  <img src="Images/BookDetail.png" width="250" />
+</p>
+
 ## 🏗️ 아키텍처
 
 Clean Architecture를 기반으로 설계되었습니다.
@@ -61,6 +69,9 @@ BookSeeker/
 ## 👤 Author
 
 **강지우**
+
+## 💡 Git Repository
+`https://github.com/KKANG00/BookSeeker.git`
 
 ## 📄 License
 
