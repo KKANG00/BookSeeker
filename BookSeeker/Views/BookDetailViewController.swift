@@ -8,10 +8,14 @@
 import UIKit
 
 class BookDetailViewController: UIViewController {
-    private let isbn13: String
-    private let apiService = APIService.shared
+    private let searchUseCase: SearchUseCaseProtocol
+    private let isbn13: String?
 
-    init(isbn13: String) {
+    init(
+        searchUseCase: SearchUseCaseProtocol,
+        isbn13: String?
+    ) {
+        self.searchUseCase = searchUseCase
         self.isbn13 = isbn13
         super.init(nibName: nil, bundle: nil)
     }
@@ -175,43 +179,45 @@ class BookDetailViewController: UIViewController {
 
 extension BookDetailViewController {
     private func fetchBookDetails() {
+        guard let isbn13 else { return }
         loadingIndicator.startAnimating()
 
-        apiService.fetchBookDetails(isbn13: isbn13) { [weak self] result in
-            guard let self else { return }
+        Task {
+            do {
+                let response = try await searchUseCase.bookDetail(isbn: isbn13)
 
-            DispatchQueue.main.async {
-                self.loadingIndicator.stopAnimating()
-
-                switch result {
-                case .success(let book):
-                    self.setBookInfo(book)
+                await MainActor.run {
+                    self.loadingIndicator.stopAnimating()
+                    self.setBookInfo(response)
                     self.emptyStateView.hide()
-                case .failure(let error):
+                }
+            } catch {
+                await MainActor.run {
+                    self.loadingIndicator.stopAnimating()
                     self.failToLoad(error: error.localizedDescription)
                 }
             }
         }
     }
 
-    private func setBookInfo(_ book: BookResponse) {
-        let noInfo = "정보 없음"
-        titleLabel.text = book.title
-        subtitleLabel.text = book.subtitle
-        authorsLabel.text = "저자: \(book.authors ?? noInfo)"
-        publisherLabel.text = "출판사: \(book.publisher ?? noInfo)"
-        languageLabel.text = "언어: \(book.language ?? noInfo)"
-        isbn10Label.text = "no(10): \(book.isbn10 ?? noInfo)"
-        isbn13Label.text = "no(13): \(book.isbn13)"
-        pagesLabel.text = "페이지: \(book.pages ?? noInfo)"
-        yearLabel.text = "출판년도: \(book.year ?? noInfo)"
-        priceLabel.text = "가격: \(book.price)"
-        ratingLabel.text = "별점: \(book.rating ?? noInfo)"
-        descriptionLabel.text = book.desc ?? noInfo
-        urlButton.setTitle("\(book.url)", for: .normal)
+    private func setBookInfo(_ entity: BookEntity) {
+        titleLabel.text = entity.title
+        subtitleLabel.text = entity.subtitle
+        authorsLabel.text = entity.authors
+        publisherLabel.text = entity.publisher
+        languageLabel.text = entity.language
+        isbn10Label.text = entity.bookNumber10
+        isbn13Label.text = entity.bookNumber13
+        pagesLabel.text = entity.pages
+        yearLabel.text = entity.year
+        priceLabel.text = entity.price
+        ratingLabel.text = entity.rating
+        descriptionLabel.text = entity.description
+        urlButton.setTitle(entity.url, for: .normal)
 
-        if let imageURL = URL(string: book.image) {
-            downloadImage(from: imageURL)
+        if let imageURL = entity.imageURL,
+           let url = URL(string: imageURL) {
+            downloadImage(from: url)
         } else {
             bookCoverImageView.image = UIImage(systemName: "book.fill")
         }

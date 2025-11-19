@@ -19,7 +19,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: scene)
 
-        let viewController = SearchMainViewController()
+        let viewController = SearchMainViewController(
+            searchUseCase: SearchUseCaseImpl(
+                repository: SearchRepository()
+            )
+        )
         let navigationController = UINavigationController(rootViewController: viewController)
         window.rootViewController = navigationController
 

@@ -8,12 +8,21 @@
 import UIKit
 
 class SearchMainViewController: UIViewController {
-    private let apiService = APIService.shared
+    private let searchUseCase: SearchUseCaseProtocol
+
+    init(searchUseCase: SearchUseCaseProtocol) {
+        self.searchUseCase = searchUseCase
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let searchResultTableView = UITableView()
     private var emptyStateView = EmptyStateView(type: .searchResultFail)
     private let searchController = UISearchController(searchResultsController: nil)
-    private var books: [BookResponse] = []
+    private var books: [BookEntity] = []
 
     private var currentPage: Int = 1
     private var totalResult: Int = 0
@@ -91,7 +100,12 @@ extension SearchMainViewController: UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         let book = books[indexPath.row]
 
-        let detailViewController = BookDetailViewController(isbn13: book.isbn13)
+        let detailViewController = BookDetailViewController(
+            searchUseCase: SearchUseCaseImpl(
+                repository: SearchRepository()
+            ),
+            isbn13: book.isbn13
+        )
 
         detailViewController.modalPresentationStyle = .pageSheet
 
@@ -152,12 +166,12 @@ extension SearchMainViewController: UISearchResultsUpdating {
         guard !isLoading else { return }
         isLoading = true
 
-        apiService.fetchSearchResult(query: query, page: page) { [weak self] result in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let response):
+        Task {
+            do {
+                let response = try await searchUseCase.search(query: query, page: page)
+
+                await MainActor.run {
+                    self.isLoading = false
                     guard !response.books.isEmpty
                     else {
                         self.failToLoad(.noData)
@@ -173,7 +187,10 @@ extension SearchMainViewController: UISearchResultsUpdating {
                     self.searchResultTableView.reloadData()
 
                     self.emptyStateView.hide()
-                case .failure(let error):
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
                     if page == 1 {
                         let error = error as? NetworkError
                         self.failToLoad(error)

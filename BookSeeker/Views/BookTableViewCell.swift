@@ -124,15 +124,16 @@ class BookTableViewCell: UITableViewCell {
         bookCoverImageView.image = nil
     }
 
-    func configureBook(with info: BookResponse) {
-        titleLabel.text = info.title
-        subtitleLabel.text = info.subtitle
-        isbn13Label.text = "번호: \(info.isbn13)"
-        priceLabel.text = "가격: \(info.price)"
-        urlButton.setTitle("이동하기: \(info.url)", for: .normal)
+    func configureBook(with entity: BookEntity) {
+        titleLabel.text = entity.title
+        subtitleLabel.text = entity.subtitle
+        isbn13Label.text = entity.bookNumber13
+        priceLabel.text = entity.price
+        urlButton.setTitle("이동하기: \(entity.url)", for: .normal)
 
-        if let imageURL = URL(string: info.image) {
-            downloadImage(from: imageURL)
+        if let imageURL = entity.imageURL,
+           let url = URL(string: imageURL) {
+            downloadImage(from: url)
         }
     }
 
