@@ -33,6 +33,7 @@ class BookTableViewCell: UITableViewCell {
         bookInfoStackView.translatesAutoresizingMaskIntoConstraints = false
 
         bookInfoStackView.axis = .vertical
+        bookInfoStackView.spacing = 10
         bookInfoStackView.addArrangedSubview(titleLabel)
         bookInfoStackView.addArrangedSubview(subtitleLabel)
         bookInfoStackView.addArrangedSubview(isbn13Label)
@@ -45,7 +46,7 @@ class BookTableViewCell: UITableViewCell {
         bookCoverImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
         bookCoverImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         bookInfoStackView.leading(equalTo: bookCoverImageView.trailingAnchor)
-        bookInfoStackView.top().bottom().trailing()
+        bookInfoStackView.top(constant: 10).bottom(constant: 10).trailing(constant: 10)
     }
 
     private func setLabels() {
@@ -77,20 +78,17 @@ class BookTableViewCell: UITableViewCell {
     }
 
     override func prepareForReuse() {
-        prepareForReuse()
+        super.prepareForReuse()
         titleLabel.text = nil
         subtitleLabel.text = nil
         priceLabel.text = nil
         bookCoverImageView.image = nil
-//        bookCoverImageView.tintColor = nil
     }
 
     func configureBook(with info: BookResponse) {
         titleLabel.text = info.title
         subtitleLabel.text = info.subtitle
         priceLabel.text = info.price
-        bookCoverImageView.image = UIImage(systemName: "book.fill")
-        bookCoverImageView.tintColor = .gray
 
         if let imageURL = URL(string: info.image) {
             downloadImage(from: imageURL)
