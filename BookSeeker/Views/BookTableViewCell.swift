@@ -93,20 +93,18 @@ class BookTableViewCell: UITableViewCell {
         urlButton.titleLabel?.font = .systemFont(ofSize: 14)
         urlButton.titleLabel?.numberOfLines = 2
         urlButton.contentHorizontalAlignment = .left
-        urlButton.addTarget(self, action: #selector(openURL), for: .touchUpInside)
+        urlButton.addTarget(self, action: #selector(urlButtonAction), for: .touchUpInside)
+    }
+
+    @objc
+    private func urlButtonAction() {
+        guard let labelText = urlButton.titleLabel?.text?.split(separator: " ").last
+        else { return }
+        openURL(String(labelText))
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    @objc
-    private func openURL() {
-        if let urlString = urlButton.titleLabel?.text?.split(separator: " ").last,
-           let url = URL(string: String(urlString)),
-           UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url)
-        }
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

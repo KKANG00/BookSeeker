@@ -29,10 +29,15 @@ class BookDetailViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let authorsLabel = UILabel()
     private let publisherLabel = UILabel()
+    private let languageLabel = UILabel()
+    private let isbn10Label = UILabel()
+    private let isbn13Label = UILabel()
+    private let pagesLabel = UILabel()
     private let yearLabel = UILabel()
     private let priceLabel = UILabel()
     private let ratingLabel = UILabel()
     private let descriptionLabel = UILabel()
+    private let urlButton = UIButton()
 
     private let emptyStateView: EmptyStateView = .init(type: .detailInfoFail)
 
@@ -75,7 +80,7 @@ class BookDetailViewController: UIViewController {
         contentView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         contentView.addSubview(bookCoverImageView)
 
-        bookCoverImageView.top().leading().trailing()
+        bookCoverImageView.top(constant: 20).leading().trailing()
         bookCoverImageView.heightAnchor.constraint(equalToConstant: 300).isActive = true
 
         detailStackView
@@ -90,7 +95,6 @@ class BookDetailViewController: UIViewController {
     private func setStackView() {
         detailStackView.axis = .vertical
         detailStackView.spacing = 10
-        detailStackView.alignment = .fill
         detailStackView.distribution = .fill
 
         setLabels()
@@ -100,10 +104,15 @@ class BookDetailViewController: UIViewController {
             subtitleLabel,
             authorsLabel,
             publisherLabel,
+            languageLabel,
+            isbn10Label,
+            isbn13Label,
+            pagesLabel,
             yearLabel,
             priceLabel,
             ratingLabel,
             descriptionLabel,
+            urlButton,
         ]
         .forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -124,6 +133,10 @@ class BookDetailViewController: UIViewController {
         [
             authorsLabel,
             publisherLabel,
+            languageLabel,
+            isbn10Label,
+            isbn13Label,
+            pagesLabel,
             yearLabel,
             priceLabel,
             ratingLabel,
@@ -134,6 +147,18 @@ class BookDetailViewController: UIViewController {
             $0.textColor = .secondaryLabel
             $0.numberOfLines = 0
         }
+
+        urlButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        urlButton.titleLabel?.numberOfLines = 0
+        urlButton.contentHorizontalAlignment = .left
+        urlButton.addTarget(self, action: #selector(urlButtonAction), for: .touchUpInside)
+    }
+
+    @objc
+    private func urlButtonAction() {
+        guard let labelText = urlButton.titleLabel?.text
+        else { return }
+        openURL(String(labelText))
     }
 
     private func setLoadingIndicator() {
@@ -173,11 +198,16 @@ extension BookDetailViewController {
         titleLabel.text = book.title
         subtitleLabel.text = book.subtitle
         authorsLabel.text = "저자: \(book.authors ?? noInfo)"
-        publisherLabel.text = "출판사: \(book.publisher ?? "정보 없음")"
+        publisherLabel.text = "출판사: \(book.publisher ?? noInfo)"
+        languageLabel.text = "언어: \(book.language ?? noInfo)"
+        isbn10Label.text = "no(10): \(book.isbn10 ?? noInfo)"
+        isbn13Label.text = "no(13): \(book.isbn13)"
+        pagesLabel.text = "페이지: \(book.pages ?? noInfo)"
         yearLabel.text = "출판년도: \(book.year ?? noInfo)"
         priceLabel.text = "가격: \(book.price)"
         ratingLabel.text = "별점: \(book.rating ?? noInfo)"
         descriptionLabel.text = book.desc ?? noInfo
+        urlButton.setTitle("\(book.url)", for: .normal)
 
         if let imageURL = URL(string: book.image) {
             downloadImage(from: imageURL)
