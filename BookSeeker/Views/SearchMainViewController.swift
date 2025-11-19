@@ -18,7 +18,7 @@ class SearchMainViewController: UIViewController {
     private var currentPage: Int = 1
     private var totalResult: Int = 0
     private var isLoading: Bool = false
-    private var currentSearchQuery: String = ""
+    var currentSearchQuery: String = ""
 
     private var searchWorkItem: DispatchWorkItem?
 
