@@ -34,37 +34,46 @@ class EmptyStateView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    var stackView: UIStackView = .init()
+
     var iconImageView: UIImageView = .init()
+    var defaultLabel: UILabel = .init()
     var descriptionLabel: UILabel = .init()
 
     func setMessage(_ message: String?) {
-        descriptionLabel.text =
-            """
-                    \(defaultMessage)
-                    \(message ?? "")
-            """
+        defaultLabel.text = defaultMessage
+        descriptionLabel.text = message ?? ""
     }
 
     func set(to superView: UIView) {
         superView.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        defaultLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        centerXAnchor.constraint(equalTo: superView.centerXAnchor).isActive = true
-        centerYAnchor.constraint(equalTo: superView.centerYAnchor).isActive = true
-        addSubview(iconImageView)
+        top().bottom().leading().trailing()
+
+        stackView.axis = .vertical
+        stackView.spacing = 4
+        stackView.alignment = .center
+        addSubview(stackView)
+        stackView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        stackView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        stackView.leading().trailing()
+        stackView.addArrangedSubview(iconImageView)
+        stackView.addArrangedSubview(defaultLabel)
+        stackView.addArrangedSubview(descriptionLabel)
+
         iconImageView.image = UIImage(systemName: errorIconImageName)
         iconImageView.widthAnchor.constraint(equalToConstant: 50).isActive = true
         iconImageView.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        iconImageView.centerXAnchor.constraint(equalTo: centerXAnchor)
-            .isActive = true
-        iconImageView.centerYAnchor.constraint(equalTo: centerYAnchor)
-            .isActive = true
-        addSubview(descriptionLabel)
-        descriptionLabel
-            .leading().trailing().top(equalTo: iconImageView.bottomAnchor, constant: 20)
-        descriptionLabel.text = "\(defaultMessage)"
+        defaultLabel.text = "\(defaultMessage)"
+        defaultLabel.numberOfLines = 2
+        defaultLabel.textAlignment = .center
+        descriptionLabel.text = ""
+        descriptionLabel.numberOfLines = 2
         descriptionLabel.textAlignment = .center
 
         isHidden = true
