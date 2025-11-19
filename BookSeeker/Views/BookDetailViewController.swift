@@ -34,6 +34,8 @@ class BookDetailViewController: UIViewController {
     private let ratingLabel = UILabel()
     private let descriptionLabel = UILabel()
 
+    private let emptyStateView: EmptyStateView = .init(type: .detailInfoFail)
+
     private let loadingIndicator = UIActivityIndicatorView(style: .large)
 
     override func viewDidLoad() {
@@ -44,6 +46,7 @@ class BookDetailViewController: UIViewController {
         setImageView()
         setStackView()
         setLoadingIndicator()
+        emptyStateView.set(to: view)
 
         title = "상세정보"
 
@@ -158,8 +161,9 @@ extension BookDetailViewController {
                 switch result {
                 case .success(let book):
                     self.setBookInfo(book)
+                    self.emptyStateView.hide()
                 case .failure(let error):
-                    self.failToLoad()
+                    self.failToLoad(error: error.localizedDescription)
                 }
             }
         }
@@ -197,17 +201,8 @@ extension BookDetailViewController {
         }.resume()
     }
 
-    private func failToLoad() {
-        let alert = UIAlertController(
-            title: "오류",
-            message: "책 정보를 불러올 수 없습니다.",
-            preferredStyle: .alert
-        )
-
-        alert.addAction(UIAlertAction(title: "확인", style: .default) { [weak self] _ in
-            self?.dismiss(animated: true)
-        })
-
-        present(alert, animated: true)
+    private func failToLoad(error message: String?) {
+        emptyStateView.setMessage(message)
+        emptyStateView.show()
     }
 }

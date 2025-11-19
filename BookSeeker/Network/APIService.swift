@@ -39,7 +39,7 @@ final class APIService: Sendable {
         where T: Decodable {
         let task = URLSession.shared.dataTask(with: url) {
             data, response, error in
-            if let error {
+            if let _ = error {
                 completion(.failure(NetworkError.invalidURL))
                 return
             }
