@@ -57,7 +57,6 @@ class BookDetailViewController: UIViewController {
         bookCoverImageView.translatesAutoresizingMaskIntoConstraints = false
         bookCoverImageView.contentMode = .scaleAspectFit
         bookCoverImageView.clipsToBounds = true
-//        bookCoverImageView.backgroundColor = .gray
     }
 
     private func setScrollView() {
@@ -80,7 +79,7 @@ class BookDetailViewController: UIViewController {
         bookCoverImageView.heightAnchor.constraint(equalToConstant: 300).isActive = true
 
         detailStackView
-            .leading(constant: 20).trailing(constant: -20)
+            .leading(constant: 20).trailing(constant: 20)
             .top(
                 equalTo: bookCoverImageView.bottomAnchor,
                 constant: 20

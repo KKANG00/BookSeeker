@@ -23,6 +23,7 @@ class SearchMainViewController: UIViewController {
     private var searchWorkItem: DispatchWorkItem?
 
     private let bookTableViewCellIdentifier = "BookTableViewCell"
+    private let tableViewRowHeight: CGFloat = 180
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,7 +57,7 @@ class SearchMainViewController: UIViewController {
         searchResultTableView.translatesAutoresizingMaskIntoConstraints = false
         searchResultTableView
             .leading().trailing().top().bottom()
-        searchResultTableView.rowHeight = 100
+        searchResultTableView.rowHeight = tableViewRowHeight
         searchResultTableView.register(
             BookTableViewCell.self,
             forCellReuseIdentifier: bookTableViewCellIdentifier
@@ -123,7 +124,7 @@ extension SearchMainViewController: UISearchResultsUpdating {
         guard let query = searchController.searchBar.text, !query.isEmpty else {
             books = []
             searchResultTableView.reloadData()
-            currentSearchQuery = "" // ?
+            currentSearchQuery = ""
             currentPage = 1
             searchWorkItem?.cancel()
             emptyStateView.isHidden = true

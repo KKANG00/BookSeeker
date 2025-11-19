@@ -53,6 +53,7 @@ extension UIView {
         guard let target = target ?? superview?.trailingAnchor else {
             return self
         }
+        let constant = constant * -1
         trailingAnchor.constraint(equalTo: target, constant: constant).isActive = true
         return self
     }
