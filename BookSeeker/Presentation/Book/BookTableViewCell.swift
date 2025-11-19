@@ -131,22 +131,13 @@ class BookTableViewCell: UITableViewCell {
         priceLabel.text = entity.price
         urlButton.setTitle("이동하기: \(entity.url)", for: .normal)
 
-        if let imageURL = entity.imageURL,
-           let url = URL(string: imageURL) {
-            downloadImage(from: url)
-        }
-    }
-
-    private func downloadImage(from url: URL) {
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            guard let data,
-                  error == nil,
-                  let image = UIImage(data: data)
-            else { return }
-
-            DispatchQueue.main.async {
-                self?.bookCoverImageView.image = image
+        Task {
+            if let imageURL = entity.imageURL,
+               let image = await ImageManager.shared.loadImage(from: imageURL) {
+                self.bookCoverImageView.image = image
+            } else {
+                bookCoverImageView.image = UIImage(systemName: "book.fill")
             }
-        }.resume()
+        }
     }
 }
